@@ -55,9 +55,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <div className="mb-12 ml-4">
-          <Button className="">
-            Logout
-          </Button>
+          <Button>Logout</Button>
         </div>
       </SidebarContent>
     </Sidebar>
