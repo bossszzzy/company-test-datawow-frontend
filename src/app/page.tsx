@@ -1,9 +1,8 @@
-import RoleSwitch from "@/components/roleSwitch";
-
+import RoleChange from "@/components/roleChange";
 export default function Home() {
   return (
     <div>
-      <RoleSwitch />
+      <RoleChange />
     </div>
   );
 }
