@@ -1,4 +1,5 @@
-import Overview from "@/components/overview";
+import CreateConcert from "@/components/admin/createConcert";
+import Overview from "@/components/admin/overview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Award, CircleX, UserRound } from "lucide-react";
@@ -58,7 +59,9 @@ export default function Home() {
           <TabsContent value="overview">
             <Overview />
           </TabsContent>
-          <TabsContent value="create">Change your create here.</TabsContent>
+          <TabsContent value="create">
+            <CreateConcert />
+          </TabsContent>
         </Tabs>
       </div>
     </div>

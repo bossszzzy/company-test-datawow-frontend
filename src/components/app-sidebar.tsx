@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
 
-// Menu items.
 const items = [
   {
     title: "Home",
