@@ -14,3 +14,13 @@ export type HistoryRow = {
 };
 
 export type Role = "admin" | "user";
+
+export type RoleContextType = {
+  role: Role;
+  toggleRole: () => void;
+  setRole: (r: Role) => void;
+};
+
+export interface ConcertReservedStatus extends Concert {
+  reserved?: boolean;
+}

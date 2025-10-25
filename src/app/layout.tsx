@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "sonner";
+import { RoleProvider } from "@/contexts/role-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,14 +35,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SidebarProvider className="min-h-dvh w-full">
-          <AppSidebar />
-          <SidebarInset className="min-h-dvh">
-            <SidebarTrigger />
-            <main className="p-4 md:p-8">{children}</main>
-          </SidebarInset>
-          <Toaster position="top-right" richColors />
-        </SidebarProvider>
+        <RoleProvider>
+          <SidebarProvider className="min-h-dvh w-full">
+            <AppSidebar />
+            <SidebarInset className="min-h-dvh">
+              <SidebarTrigger />
+              <main className="p-4 md:p-8">{children}</main>
+            </SidebarInset>
+            <Toaster position="top-right" richColors />
+          </SidebarProvider>
+        </RoleProvider>
       </body>
     </html>
   );
