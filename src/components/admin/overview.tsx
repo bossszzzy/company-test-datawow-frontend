@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 import { TabsContent } from "../ui/tabs";
-import concertDb from "@/db/mockCardData.json";
+import { concertDb } from "@/db/mockCardData";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -17,9 +17,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import { Concert } from "@/types/types";
 
 export default function Overview() {
-  const fetchConcerts: Concert[] = concertDb.mockdata;
+  const fetchConcerts: Concert[] = concertDb;
   const [concerts, setConcerts] = useState<Concert[]>(fetchConcerts);
   const [open, setOpen] = useState(false);
   const [selectedConcert, setSelectedConcert] = useState<Concert | null>(null);

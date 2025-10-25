@@ -15,17 +15,17 @@ import { Button } from "./ui/button";
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
   },
   {
     title: "History",
-    url: "#",
+    url: "/history",
     icon: Inbox,
   },
   {
     title: "Switch to User",
-    url: "#",
+    url: "",
     icon: RefreshCcw,
   },
 ];
