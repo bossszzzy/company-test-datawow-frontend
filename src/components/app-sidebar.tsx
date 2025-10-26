@@ -15,17 +15,39 @@ import {
 import { Button } from "./ui/button";
 import { useRole } from "@/contexts/role-context";
 import Link from "next/link";
+import { useState } from "react";
+import { getUserIdForRole } from "@/services/auth";
+import { toast } from "sonner";
 
 export function AppSidebar() {
-  const { role, toggleRole } = useRole();
+  const { role, refreshRole } = useRole();
+  const [switching, setSwitching] = useState(false)
 
   const items =
     role === "admin"
       ? [
-          { title: "Home", url: "/", icon: Home },
-          { title: "History", url: "/history", icon: Inbox },
-        ]
+        { title: "Home", url: "/", icon: Home },
+        { title: "History", url: "/history", icon: Inbox },
+      ]
       : [{ title: "Home", url: "/", icon: Home }];
+
+  const handleSwitch = async () => {
+    if (!role) return;
+    setSwitching(true);
+    const nextRole = role === "admin" ? "user" : "admin";
+    console.log('nextId', nextRole)
+    try {
+      const nextId = await getUserIdForRole(nextRole);
+      localStorage.setItem("userId", nextId);
+      await refreshRole();
+      toast.success(`Switched to ${nextRole}`);
+    } catch (e) {
+      toast.error("Switch failed");
+      console.error(e);
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   return (
     <Sidebar className="border-r bg-background">
@@ -48,8 +70,8 @@ export function AppSidebar() {
               ))}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <button onClick={toggleRole}>
-                    <RefreshCcw />
+                  <button onClick={handleSwitch} disabled={switching}>
+                    <RefreshCcw className={switching ? "animation-spin" : undefined} />
                     <span>
                       {role === "admin" ? "Switch to User" : "Switch to Admin"}
                     </span>

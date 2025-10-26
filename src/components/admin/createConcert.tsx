@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
-import * as React from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -19,10 +18,12 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { CreateConcertInput, CreateConcertSchema } from "@/schemas/createConcertSchema";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { toast } from "sonner";
+import { createConcert } from "@/services/concerts";
+import { Props } from "@/types/types";
+import { useState } from "react";
 
-export default function CreateConcertForm() {
+export default function CreateConcertForm({ onCreated, setConcerts }: Props) {
   const form = useForm<CreateConcertInput>({
     resolver: zodResolver(CreateConcertSchema),
     mode: "onTouched",
@@ -33,16 +34,25 @@ export default function CreateConcertForm() {
     },
   });
 
-  const [submitting, setSubmitting] = React.useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  async function onSubmit() {
+  async function onSubmit(data: CreateConcertInput) {
     setSubmitting(true);
     try {
+      const created = await createConcert({
+        name: data.name,
+        description: data.description,
+        totalSeats: data.totalSeats,
+      });
+
+      setConcerts((prev) => [...prev, created]);
+
+      toast.success("Create Successfully");
       form.reset({ name: "", totalSeats: 500, description: "" });
-      toast.success("Create Successfully")
-    } catch (error) {
-      if(isRedirectError(error)) toast.success("Create Successfully")
-        else toast.error("Something went wrong")
+
+      onCreated?.();
+    } catch (e) {
+      toast.error("Create failed");
     } finally {
       setSubmitting(false);
     }

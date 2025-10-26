@@ -1,40 +1,38 @@
 "use client";
 
 import { Role } from "@/types/types";
-import * as React from "react";
 import { RoleContextType } from "@/types/types";
+import { fetchMe } from "@/services/auth";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-const RoleContext = React.createContext<RoleContextType | null>(null);
-
-const STORAGE_KEY = "app_role";
+const RoleContext = createContext<RoleContextType | null>(null);
 
 export function RoleProvider({ children }: { children: React.ReactNode }) {
-  const [role, setRole] = React.useState<Role>("admin");
+  const [role, setRole] = useState<Role>("admin");
 
-  React.useEffect(() => {
-    const saved = (typeof window !== "undefined" &&
-      localStorage.getItem(STORAGE_KEY)) as Role | null;
-    if (saved === "admin" || saved === "user") setRole(saved);
+  const refreshRole = useCallback(async () => {
+    try {
+      const me = await fetchMe();
+      setRole(me.role);
+    } catch {
+      setRole('user');
+    }
   }, []);
 
-  const toggleRole = React.useCallback(() => {
-    setRole((prev) => {
-      const next = prev === "admin" ? "user" : "admin";
-      localStorage.setItem(STORAGE_KEY, next);
-      return next;
-    });
-  }, []);
+  useEffect(() => {
+    refreshRole()
+  }, [refreshRole])
 
-  const value = React.useMemo(
-    () => ({ role, toggleRole, setRole }),
-    [role, toggleRole]
+  const value = useMemo(
+    () => ({ role, refreshRole }),
+    [role, refreshRole]
   );
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }
 
 export function useRole() {
-  const ctx = React.useContext(RoleContext);
+  const ctx = useContext(RoleContext);
   if (!ctx) throw new Error("useRole must be used within <RoleProvider>");
   return ctx;
 }

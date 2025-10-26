@@ -1,29 +1,62 @@
 "use client";
 import { Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { concertDb } from "@/db/mockCardData";
 import { ConcertReservedStatus } from "@/types/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { listConcerts } from "@/services/concerts";
+import { cancelReservation, reserveConcert } from "@/services/reservations";
 
 export default function UserComponent() {
-  const fetchConcerts: ConcertReservedStatus[] = concertDb;
   const [concerts, setConcerts] =
-    useState<ConcertReservedStatus[]>(fetchConcerts);
+    useState<ConcertReservedStatus[]>([]);
+  const [loading, setLoading] = useState(true)
 
-  const onAction = (c: ConcertReservedStatus) => {
-    setConcerts((prev) =>
-      prev.map((item) =>
-        item.id === c.id ? { ...item, reserved: !item.reserved } : item
-      )
-    );
-    toast.success(
-      c.reserved
-        ? `Cancel reserved ${c.name} successfully`
-        : `Reserved ${c.name} successfully`
-    );
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await listConcerts();
+        setConcerts(data);
+      } catch (err) {
+        toast.error("Failed to load concerts");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const handleReserve = async (concertId: string) => {
+    try {
+      await reserveConcert(concertId);
+      setConcerts((prev) =>
+        prev.map((c) =>
+          c.id === concertId ? { ...c, reserved: true } : c
+        )
+      );
+      toast.success("Reserved successfully!");
+    } catch (err) {
+      toast.error("Failed to reserve");
+    }
   };
+
+  const handleCancel = async (concertId: string) => {
+    try {
+      await cancelReservation(concertId);
+      setConcerts((prev) =>
+        prev.map((c) =>
+          c.id === concertId ? { ...c, reserved: false } : c
+        )
+      );
+      toast.success("Cancelled reservation!");
+    } catch (err) {
+      toast.error("Failed to cancel");
+    }
+  };
+
+  if (loading) {
+    return <div className="p-8 text-muted-foreground">Loading concerts...</div>;
+  }
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-6">
@@ -38,17 +71,18 @@ export default function UserComponent() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="h-4 w-4" /> {c.seats}
               </div>
-              <Button
-                variant={c.reserved ? "destructive" : "default"}
-                className={
-                  c.reserved
-                    ? "bg-red-500 hover:bg-red-600"
-                    : "bg-blue-500 hover:bg-blue-600"
-                }
-                onClick={() => onAction(c)}
-              >
-                {c.reserved ? "Cancel" : "Reserve"}
-              </Button>
+              {c.reserved ? (
+                <Button
+                  variant="destructive"
+                  onClick={() => handleCancel(c.id)}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                <Button onClick={() => handleReserve(c.id)}>
+                  Reserve
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

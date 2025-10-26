@@ -2,9 +2,28 @@ import CreateConcert from "@/components/admin/createConcert";
 import Overview from "@/components/admin/overview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { listConcerts } from "@/services/concerts";
+import type { Concert } from "@/types/types";
 import { Award, CircleX, UserRound } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AdminComponent() {
+  const [concerts, setConcerts] = useState<Concert[]>([])
+  const [tab, setTab] = useState('overview')
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const rows = await listConcerts();
+        setConcerts(rows);
+      } catch (e) {
+        toast.error("Load concerts failed");
+      }
+    })();
+  }, []);
+
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-evenly w-full">
@@ -57,10 +76,13 @@ export default function AdminComponent() {
             <TabsTrigger value="create">Create</TabsTrigger>
           </TabsList>
           <TabsContent value="overview">
-            <Overview />
+            <Overview concerts={concerts} setConcerts={setConcerts} />
           </TabsContent>
           <TabsContent value="create">
-            <CreateConcert />
+            <CreateConcert
+              concerts={concerts}
+              setConcerts={setConcerts}
+              onCreated={() => setTab("overview")} />
           </TabsContent>
         </Tabs>
       </div>
